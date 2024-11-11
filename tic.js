@@ -1,83 +1,124 @@
-// script.js
-
-let board = ["", "", "", "", "", "", "", "", ""];
-let currentPlayer = "X";
-let gameActive = true;
-let playerXScore = 0;
-let playerOScore = 0;
+let board = [];
+let currentPlayer = 'X';
+let gameOver = false;
+let scoreX = 0;
+let scoreO = 0;
 let ties = 0;
+let winningCells = [];
 
-const cells = document.querySelectorAll(".cell");
-const turnIndicator = document.getElementById("turnIndicator");
-const newGameBtn = document.getElementById("newGameBtn");
-const darkModeToggle = document.getElementById("darkModeToggle");
-const playerXScoreElement = document.getElementById("playerXScore");
-const playerOScoreElement = document.getElementById("playerOScore");
-const tiesElement = document.getElementById("ties");
-
-cells.forEach((cell, index) => {
-  cell.addEventListener("click", () => handleCellClick(index));
-});
-
-newGameBtn.addEventListener("click", resetGame);
-darkModeToggle.addEventListener("click", toggleDarkMode);
-
-function handleCellClick(index) {
-  if (board[index] || !gameActive) return;
-
-  board[index] = currentPlayer;
-  cells[index].textContent = currentPlayer;
-  checkWin();
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  turnIndicator.textContent = `Player ${currentPlayer}'s Turn`;
+// Create the game board dynamically
+function createBoard() {
+  const boardElement = document.getElementById('board');
+  boardElement.innerHTML = ''; // Clear existing board if any
+  
+  // Create each cell and add event listeners
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.dataset.index = i;
+    cell.addEventListener('click', () => makeMove(i));
+    boardElement.appendChild(cell);
+  }
 }
 
-function checkWin() {
-  const winningCombinations = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], 
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], 
-    [0, 4, 8], [2, 4, 6]
+// Handle a move by a player
+function makeMove(index) {
+  if (gameOver || board[index]) return;
+
+  // Mark the cell with the player's symbol (X or O)
+  board[index] = currentPlayer;
+  const cell = document.querySelector(`.cell[data-index="${index}"]`);
+  cell.textContent = currentPlayer;
+  
+  // Check if there's a winner
+  if (checkWinner()) {
+    setTimeout(() => {
+      alert(`${currentPlayer} wins!`);
+      highlightWinningCells();
+      updateScore();
+      gameOver = true;
+      showConfetti();
+    }, 100);
+  } else if (board.every(cell => cell)) {
+    setTimeout(() => {
+      alert('It\'s a tie!');
+      ties++;
+      document.getElementById('ties').textContent = `Ties: ${ties}`;
+      gameOver = true;
+    }, 100);
+  } else {
+    // Switch player turn
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    document.getElementById('turnIndicator').textContent = `Player ${currentPlayer}'s Turn`;
+  }
+}
+
+// Check for a winner using pre-defined win patterns
+function checkWinner() {
+  const winPatterns = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
   ];
 
-  let roundWon = false;
-  winningCombinations.forEach(combination => {
-    const [a, b, c] = combination;
+  for (const pattern of winPatterns) {
+    const [a, b, c] = pattern;
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      roundWon = true;
-      gameActive = false;
-      combination.forEach(index => cells[index].classList.add("winning-cell"));
-      updateScore();
+      winningCells = [a, b, c];
+      return true;
     }
-  });
+  }
+  return false;
+}
 
-  if (!board.includes("") && !roundWon) {
-    gameActive = false;
-    ties++;
-    tiesElement.textContent = ties;
+// Highlight the winning cells with a glowing effect
+function highlightWinningCells() {
+  for (let i = 0; i < winningCells.length; i++) {
+    const index = winningCells[i];
+    const winningCell = document.querySelector(`.cell[data-index="${index}"]`);
+    winningCell.classList.add('winning-cell');
   }
 }
 
+// Update the score after a win
 function updateScore() {
-  if (currentPlayer === "X") {
-    playerXScore++;
-    playerXScoreElement.textContent = playerXScore;
+  if (currentPlayer === 'X') {
+    scoreX++;
+    document.getElementById('scoreX').textContent = `Player X: ${scoreX}`;
   } else {
-    playerOScore++;
-    playerOScoreElement.textContent = playerOScore;
+    scoreO++;
+    document.getElementById('scoreO').textContent = `Player O: ${scoreO}`;
   }
 }
 
-function resetGame() {
-  board = ["", "", "", "", "", "", "", "", ""];
-  cells.forEach(cell => {
-    cell.textContent = "";
-    cell.classList.remove("winning-cell");
-  });
-  gameActive = true;
-  currentPlayer = "X";
-  turnIndicator.textContent = `Player X's Turn`;
+// Display confetti animation
+function showConfetti() {
+  const confetti = document.getElementById('confetti');
+  confetti.style.display = 'block';
+  setTimeout(() => {
+    confetti.style.display = 'none';
+  }, 3000);
 }
 
-function toggleDarkMode() {
-  document.body.classList.toggle("dark-mode");
+// Reset the game board
+function resetGame() {
+  board = [];
+  currentPlayer = 'X';
+  gameOver = false;
+  winningCells = [];
+  document.getElementById('turnIndicator').textContent = "Player X's Turn";
+  createBoard();
 }
+
+// Toggle between dark and light mode
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
+// Initialize the game on page load
+window.onload = createBoard;
