@@ -1,63 +1,83 @@
-let currentPlayer = 'X';
-let moves = 0;
+// script.js
 
-document.getElementById("theme-toggle").onclick = toggleTheme;
+let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameActive = true;
+let playerXScore = 0;
+let playerOScore = 0;
+let ties = 0;
 
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-}
+const cells = document.querySelectorAll(".cell");
+const turnIndicator = document.getElementById("turnIndicator");
+const newGameBtn = document.getElementById("newGameBtn");
+const darkModeToggle = document.getElementById("darkModeToggle");
+const playerXScoreElement = document.getElementById("playerXScore");
+const playerOScoreElement = document.getElementById("playerOScore");
+const tiesElement = document.getElementById("ties");
 
-function makeMove(cellId) {
-    const cell = document.getElementById(cellId);
-    if (cell.value === '') {
-        cell.value = currentPlayer;
-        cell.disabled = true;
-        moves++;
-        checkWin();
-        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-        document.getElementById('print').innerText = `Player ${currentPlayer} Turn`;
-    }
+cells.forEach((cell, index) => {
+  cell.addEventListener("click", () => handleCellClick(index));
+});
+
+newGameBtn.addEventListener("click", resetGame);
+darkModeToggle.addEventListener("click", toggleDarkMode);
+
+function handleCellClick(index) {
+  if (board[index] || !gameActive) return;
+
+  board[index] = currentPlayer;
+  cells[index].textContent = currentPlayer;
+  checkWin();
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  turnIndicator.textContent = `Player ${currentPlayer}'s Turn`;
 }
 
 function checkWin() {
-    const winningCombinations = [
-        ['b1', 'b2', 'b3'],
-        ['b4', 'b5', 'b6'],
-        ['b7', 'b8', 'b9'],
-        ['b1', 'b4', 'b7'],
-        ['b2', 'b5', 'b8'],
-        ['b3', 'b6', 'b9'],
-        ['b1', 'b5', 'b9'],
-        ['b3', 'b5', 'b7']
-    ];
+  const winningCombinations = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+    [0, 4, 8], [2, 4, 6]
+  ];
 
-    for (const combo of winningCombinations) {
-        const [a, b, c] = combo.map(id => document.getElementById(id).value);
-        if (a && a === b && b === c) {
-            document.getElementById('print').innerText = `Player ${a} Won!`;
-            disableAllCells();
-            return;
-        }
+  let roundWon = false;
+  winningCombinations.forEach(combination => {
+    const [a, b, c] = combination;
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      roundWon = true;
+      gameActive = false;
+      combination.forEach(index => cells[index].classList.add("winning-cell"));
+      updateScore();
     }
+  });
 
-    if (moves === 9) {
-        document.getElementById('print').innerText = "It's a Tie!";
-    }
+  if (!board.includes("") && !roundWon) {
+    gameActive = false;
+    ties++;
+    tiesElement.textContent = ties;
+  }
 }
 
-function disableAllCells() {
-    for (let i = 1; i <= 9; i++) {
-        document.getElementById(`b${i}`).disabled = true;
-    }
+function updateScore() {
+  if (currentPlayer === "X") {
+    playerXScore++;
+    playerXScoreElement.textContent = playerXScore;
+  } else {
+    playerOScore++;
+    playerOScoreElement.textContent = playerOScore;
+  }
 }
 
 function resetGame() {
-    for (let i = 1; i <= 9; i++) {
-        const cell = document.getElementById(`b${i}`);
-        cell.value = '';
-        cell.disabled = false;
-    }
-    currentPlayer = 'X';
-    moves = 0;
-    document.getElementById('print').innerText = "Player X Turn";
+  board = ["", "", "", "", "", "", "", "", ""];
+  cells.forEach(cell => {
+    cell.textContent = "";
+    cell.classList.remove("winning-cell");
+  });
+  gameActive = true;
+  currentPlayer = "X";
+  turnIndicator.textContent = `Player X's Turn`;
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
 }
