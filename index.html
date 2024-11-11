@@ -1,46 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic Tac Toe</title>
-  <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        h1 {
+            color: orangered;
+            margin-bottom: -5px;
+        }
+
+        p {
+            margin-bottom: -10px;
+        }
+
+        .ui {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .cell {
+            border: 1px solid gray;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #ffffff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+        }
+
+        .cell:hover {
+            transform: scale(1.1);
+            background-color: #e0e0e0;
+        }
+
+        body.dark-mode .cell {
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        .cell:active {
+            outline: none;
+        }
+
+        #but, #toggle-dark-mode {
+            box-sizing: border-box;
+            width: 120px;
+            height: 40px;
+            border: 1px solid dodgerblue;
+            border-radius: 8px;
+            background-color: whitesmoke;
+            color: dodgerblue;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+        }
+
+        #but:hover, #toggle-dark-mode:hover {
+            transform: scale(1.05);
+        }
+
+        body.dark-mode #but, body.dark-mode #toggle-dark-mode {
+            background-color: #444;
+            color: #ffffff;
+        }
+
+        #print {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .winning-cell {
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px red;
+            }
+            to {
+                box-shadow: 0 0 20px yellow;
+            }
+        }
+    </style>
+    <script>
+        let flag = 1;
+        let xWins = 0;
+        let oWins = 0;
+        let ties = 0;
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function myfunc() {
+            const b1 = document.getElementById("b1").value;
+            const b2 = document.getElementById("b2").value;
+            const b3 = document.getElementById("b3").value;
+            const b4 = document.getElementById("b4").value;
+            const b5 = document.getElementById("b5").value;
+            const b6 = document.getElementById("b6").value;
+            const b7 = document.getElementById("b7").value;
+            const b8 = document.getElementById("b8").value;
+            const b9 = document.getElementById("b9").value;
+
+            const b1btn = document.getElementById("b1");
+            const b2btn = document.getElementById("b2");
+            const b3btn = document.getElementById("b3");
+            const b4btn = document.getElementById("b4");
+            const b5btn = document.getElementById("b5");
+            const b6btn = document.getElementById("b6");
+            const b7btn = document.getElementById("b7");
+            const b8btn = document.getElementById("b8");
+            const b9btn = document.getElementById("b9");
+
+            function declareWinner(player) {
+                document.getElementById('print').innerHTML = `Player ${player} won`;
+                if (player === 'X') xWins++;
+                if (player === '0') oWins++;
+                updateScoreboard();
+                [b1btn, b2btn, b3btn, b4btn, b5btn, b6btn, b7btn, b8btn, b9btn].forEach(btn => btn.disabled = true);
+            }
+
+            function highlightWinningCells(...cells) {
+                cells.forEach(cell => cell.classList.add("winning-cell"));
+            }
+
+            if ((b1 === 'X' && b2 === 'X' && b3 === 'X') || (b1 === 'x' && b2 === 'x' && b3 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b1btn, b2btn, b3btn);
+            } else if ((b1 === 'X' && b4 === 'X' && b7 === 'X') || (b1 === 'x' && b4 === 'x' && b7 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b1btn, b4btn, b7btn);
+            } else if ((b7 === 'X' && b8 === 'X' && b9 === 'X') || (b7 === 'x' && b8 === 'x' && b9 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b7btn, b8btn, b9btn);
+            } else if ((b3 === 'X' && b6 === 'X' && b9 === 'X') || (b3 === 'x' && b6 === 'x' && b9 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b3btn, b6btn, b9btn);
+            } else if ((b1 === 'X' && b5 === 'X' && b9 === 'X') || (b1 === 'x' && b5 === 'x' && b9 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b1btn, b5btn, b9btn);
+            } else if ((b3 === 'X' && b5 === 'X' && b7 === 'X') || (b3 === 'x' && b5 === 'x' && b7 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b3btn, b5btn, b7btn);
+            } else if ((b2 === 'X' && b5 === 'X' && b8 === 'X') || (b2 === 'x' && b5 === 'x' && b8 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b2btn, b5btn, b8btn);
+            } else if ((b4 === 'X' && b5 === 'X' && b6 === 'X') || (b4 === 'x' && b5 === 'x' && b6 === 'x')) {
+                declareWinner('X');
+                highlightWinningCells(b4btn, b5btn, b6btn);
+            } else if ((b1 === '0' && b2 === '0' && b3 === '0') || (b1 === '0' && b2 === '0' && b3 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b1btn, b2btn, b3btn);
+            } else if ((b1 === '0' && b4 === '0' && b7 === '0') || (b1 === '0' && b4 === '0' && b7 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b1btn, b4btn, b7btn);
+            } else if ((b7 === '0' && b8 === '0' && b9 === '0') || (b7 === '0' && b8 === '0' && b9 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b7btn, b8btn, b9btn);
+            } else if ((b3 === '0' && b6 === '0' && b9 === '0') || (b3 === '0' && b6 === '0' && b9 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b3btn, b6btn, b9btn);
+            } else if ((b1 === '0' && b5 === '0' && b9 === '0') || (b1 === '0' && b5 === '0' && b9 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b1btn, b5btn, b9btn);
+            } else if ((b3 === '0' && b5 === '0' && b7 === '0') || (b3 === '0' && b5 === '0' && b7 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b3btn, b5btn, b7btn);
+            } else if ((b2 === '0' && b5 === '0' && b8 === '0') || (b2 === '0' && b5 === '0' && b8 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b2btn, b5btn, b8btn);
+            } else if ((b4 === '0' && b5 === '0' && b6 === '0') || (b4 === '0' && b5 === '0' && b6 === '0')) {
+                declareWinner('0');
+                highlightWinningCells(b4btn, b5btn, b6btn);
+            } else if ((b1 === 'X' || b1 === '0') && (b2 === 'X' || b2 === '0') && (b3 === 'X' || b3 === '0') &&
+                (b4 === 'X' || b4 === '0') && (b5 === 'X' || b5 === '0') && (b6 === 'X' || b6 === '0') &&
+                (b7 === 'X' || b7 === '0') && (b8 === 'X' || b8 === '0') && (b9 === 'X' || b9 === '0')) {
+                document.getElementById('print').innerHTML = "Match Tie";
+                ties++;
+                updateScoreboard();
+            } else {
+                document.getElementById('print').innerHTML = flag === 1 ? "Player X Turn" : "Player 0 Turn";
+            }
+        }
+
+        function resetGame() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.value = '';
+                cell.disabled = false;
+                cell.classList.remove('winning-cell');
+            });
+            document.getElementById('print').innerHTML = "Player X Turn";
+            flag = 1;
+        }
+
+        function playMove(cellId) {
+            const cell = document.getElementById(cellId);
+            if (flag === 1) {
+                cell.value = "X";
+                flag = 0;
+            } else {
+                cell.value = "0";
+                flag = 1;
+            }
+            cell.disabled = true;
+            myfunc();
+        }
+
+        function updateScoreboard() {
+            document.getElementById('scoreboard').innerHTML = `X Wins: ${xWins} | O Wins: ${oWins} | Ties: ${ties}`;
+        }
+
+        window.onload = function () {
+            updateScoreboard();
+        }
+    </script>
 </head>
+
 <body>
-
-<!-- Bolded Creator Title -->
-<div class="creator-title">Created by Bonny Sithole</div>
-
-<!-- Dark Mode Toggle Button -->
-<div class="toggle-container">
-  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-</div>
-
-<!-- Main Game Container -->
-<div class="container">
-  <h1>Tic Tac Toe</h1>
-
-  <!-- Player Turn Indicator -->
-  <div class="turn-indicator" id="turnIndicator">Player X's Turn</div>
-
-  <!-- Game Board -->
-  <div class="board" id="board"></div>
-
-  <!-- Scoreboard Display -->
-  <div class="scoreboard">
-    <p id="scoreX">Player X: 0</p>
-    <p id="scoreO">Player O: 0</p>
-    <p id="ties">Ties: 0</p>
-  </div>
-
-  <!-- New Game Button -->
-  <button onclick="resetGame()">New Game</button>
-</div>
-
-<!-- Confetti Animation (hidden by default) -->
-<div id="confetti" class="confetti"></div>
-
-<!-- Include JavaScript -->
-<script src="script.js"></script>
+    <div id="main">
+        <h1>TIC TAC TOE</h1>
+        <p><strong>Created by Bonny Sithole</strong></p>
+        <p id="ins">
+            Game starts by just tapping on a box<br><br>First Player starts as
+            <b>Player X</b> and Second Player as <b>Player 0</b>
+        </p>
+        <br><br>
+        <div class="ui">
+            <div class="row">
+                <input type="text" id="b1" class="cell" onclick="playMove('b1')" readonly>
+                <input type="text" id="b2" class="cell" onclick="playMove('b2')" readonly>
+                <input type="text" id="b3" class="cell" onclick="playMove('b3')" readonly>
+            </div>
+            <div class="row">
+                <input type="text" id="b4" class="cell" onclick="playMove('b4')" readonly>
+                <input type="text" id="b5" class="cell" onclick="playMove('b5')" readonly>
+                <input type="text" id="b6" class="cell" onclick="playMove('b6')" readonly>
+            </div>
+            <div class="row">
+                <input type="text" id="b7" class="cell" onclick="playMove('b7')" readonly>
+                <input type="text" id="b8" class="cell" onclick="playMove('b8')" readonly>
+                <input type="text" id="b9" class="cell" onclick="playMove('b9')" readonly>
+            </div>
+        </div>
+        <br><br>
+        <button id="but" onclick="resetGame()">RESET</button>
+        <button id="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <br><br>
+        <p id="print">Player X Turn</p>
+        <p id="scoreboard"></p>
+    </div>
 </body>
+
 </html>
